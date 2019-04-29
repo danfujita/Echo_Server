@@ -3,7 +3,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <regex.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -13,78 +12,74 @@
 //Target: x86_64-apple-darwin14.1.1
 //Thread model: posix
 
+int get_tcp_sock(short port_num, struct sockaddr_in server_addr, struct sockaddr_in client_addr) {
+    int tcp_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    if (tcp_sock < 0) { //
+        printf("Error: Create socket ");
+    }
+    int bind_err = bind(tcp_sock, (struct sockaddr * ) & server_addr,
+                        sizeof(server_addr));
+    if (bind_err < 0) {
+        printf("Error: Bind\n");
+        exit(-1);
+    }
+    int lis_err = listen(tcp_sock, 15); // Creates a socket queue. Size of the queue is 15.
+    if (lis_err < 0) {
+        printf("Error: Listen\n");
+        exit(-1);
+    }
+    close(0);
+    return tcp_sock;
+}
+
+void receive_message(int tcp_sock, struct sockaddr_in server_addr, struct sockaddr_in client_addr) {
+    unsigned int client_len = sizeof(client_addr);
+    int sock_client = accept(tcp_sock,
+                             (struct sockaddr * ) & client_addr, & client_len);
+    if (sock_client < 0) {
+        printf("Error: Accept\n");
+        exit(-1);
+    }
+    char buffer[512];
+    int rec_len = recv(sock_client, buffer, 512, 0);
+    if (rec_len < 0) {
+        printf("Error: Receive message \n");
+        exit(-1);
+    } else {
+        printf("Received message from: %s\n",
+               inet_ntoa(client_addr.sin_addr));
+        buffer[rec_len] = 0;
+        printf("Received message was: %s\n", buffer);
+    }
+    int sent_len = send(sock_client, buffer, rec_len, 0);
+    if (sent_len < 0) {
+        printf("Error: Send data");
+        exit(-1);
+    }
+    close(sock_client);
+}
+
 //Run the server first before the client.
 //argv[1] stores the port number
 // Example: ./server 3008
-int main(int argc, char *argv[]) {
-    if(argc!=2){//check the argument size
-        printf("1 command line argument is required.(port number) \n");
-		exit(-1);
+int main(int argc, char * argv[]) {
+    if (argc != 2) {
+        printf("Port number is required.() \n");
+        exit(-1);
     }
-	regex_t regex; // POSIX REGEX(pattern matching).
-	regcomp(&regex, "^[0-9]{1,5}$", REG_EXTENDED | REG_NEWLINE); //Create a pattern for regex
-	int IEntry = regexec(&regex, argv[1], 0, NULL, 0);	//Execute Regex
+    short port_num = atoi(argv[1]);
 
-	if (IEntry) {	//if the not in the pattern
-		printf("%s is an illegal entry \n", argv[1]);
-	} else {
-		short port_number = atoi(argv[1]);	//Convert argument to port number.
-		int soket_result = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);//Create a socket.
-	
-		if (soket_result < 0) {	//if socket returns negative one then there is an error.
-			printf("Socket Result Error");
-		}
-        //sockaddr_in is a structure that save an address.
-		struct sockaddr_in server_side;	//Store server address.
-		struct sockaddr_in client_side;	//store client address.
-		
-		server_side.sin_port = htons(port_number);	
-		server_side.sin_family = AF_INET;
-		server_side.sin_addr.s_addr = htonl(INADDR_ANY);
-	
+    struct sockaddr_in server_addr;
+    struct sockaddr_in client_addr;
 
-		int bindRes = bind(soket_result, (struct sockaddr *) &server_side,
-		sizeof(server_side));	
-		if (bindRes < 0) {
-			printf("Bind Result Error \n");
-			exit(-1);
-		}
-		int listenRes = listen(soket_result, 15);// creates a socket queue. size of the queue is 15.
-		if (listenRes < 0) {
-			printf("Listen Result Error \n");
-			exit(-1);
-		}
-		close(0);
+    server_addr.sin_port = htons(port_num);
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-		while (1) {//continue until the user terminates.
-			unsigned int client_len = sizeof(client_side);
-			int sock_client = accept(soket_result,
-					(struct sockaddr *) &client_side, &client_len);
-			if (sock_client < 0) {
-				printf("Accept Result Error \n");
-				exit(-1);
-			}
-			char buffer[512];
-			int recieveRes;
-			recieveRes = recv(sock_client, buffer, 512, 0);
-			if (recieveRes < 0) {
-				printf("Recieving Data Error \n");
-				exit(-1);
-			} else {
-				printf("Received Message From: %s\n",
-						inet_ntoa(client_side.sin_addr));
-			    buffer[recieveRes]=0;
+    int tcp_sock = get_tcp_sock(port_num, server_addr, client_addr);
 
-				printf("Received Message was: %s\n", buffer);
-			}
-            int sendRes= send(sock_client, buffer, recieveRes, 0);
-            if(sendRes<0){
-                printf("Sending Data Error");
-				exit(-1);
-            }
-			close(sock_client);
-
-		}
-	}
+    while (1) {
+        receive_message(tcp_sock, server_addr, client_addr);
+    }
 }
-
