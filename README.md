@@ -1,5 +1,5 @@
 ## Echo Server
-Echo Server is an echo server written in C that works over TCP protocol. The server receives a message from the client and echos back to the client.
+Echo Server is an echo server written in C that works over TCP. The server receives a message from the client and echos back to the client.
 
 ### Building from source
 
