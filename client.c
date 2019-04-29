@@ -52,7 +52,7 @@ int get_tcp_sock(short port_num, char *ip_address) {
     return tcp_sock;
 }
 
-//Run the server first before the client.
+//Run the server before the client.
 //argv[1] contains the port number of the server
 //argv[2] contains the ip address of the server (127.0.0.1 for localhost)
 //argv[3] contains the message to send.

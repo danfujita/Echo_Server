@@ -60,8 +60,8 @@ void receive_message(int tcp_sock, struct sockaddr_in server_addr, struct sockad
     close(sock_client);
 }
 
-//Run the server first before the client.
-//argv[1] stores the port number
+//Run the server before the client.
+//argv[1] contains the port number of the server
 // Example: ./server 3008
 int main(int argc, char * argv[]) {
     if (argc != 2) {
