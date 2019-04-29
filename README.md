@@ -5,7 +5,7 @@ TCP Echo Server is an echo server written in C that works over TCP protocol. The
 
 You can also clone the repository and build using make:
 
-    $ git clone https://github.com/danfujita/echo_server.git
+    $ git clone https://github.com/danfujita/echo-server.git
     $ make
 
 ### Usage
