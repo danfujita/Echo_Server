@@ -15,7 +15,7 @@
 int get_tcp_sock(short port_num, struct sockaddr_in server_addr, struct sockaddr_in client_addr) {
     int tcp_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    if (tcp_sock < 0) { //
+    if (tcp_sock < 0) {
         printf("Error: Create socket ");
     }
     int bind_err = bind(tcp_sock, (struct sockaddr * ) & server_addr,
@@ -69,7 +69,6 @@ int main(int argc, char * argv[]) {
         exit(-1);
     }
     short port_num = atoi(argv[1]);
-
     struct sockaddr_in server_addr;
     struct sockaddr_in client_addr;
 
