@@ -65,7 +65,7 @@ void echo_message(int tcp_sock, struct sockaddr_in server_addr, struct sockaddr_
 // Example: ./server 3008
 int main(int argc, char * argv[]) {
     if (argc != 2) {
-        printf("Port number is required.() \n");
+        printf("Port number is required. \n");
         exit(-1);
     }
     short port_num = atoi(argv[1]);
