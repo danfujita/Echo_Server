@@ -33,7 +33,7 @@ int get_tcp_sock(short port_num, struct sockaddr_in server_addr, struct sockaddr
     return tcp_sock;
 }
 
-void receive_message(int tcp_sock, struct sockaddr_in server_addr, struct sockaddr_in client_addr) {
+void echo_message(int tcp_sock, struct sockaddr_in server_addr, struct sockaddr_in client_addr) {
     unsigned int client_len = sizeof(client_addr);
     int sock_client = accept(tcp_sock,
                              (struct sockaddr * ) & client_addr, & client_len);
@@ -79,6 +79,6 @@ int main(int argc, char * argv[]) {
     int tcp_sock = get_tcp_sock(port_num, server_addr, client_addr);
 
     while (1) {
-        receive_message(tcp_sock, server_addr, client_addr);
+        echo_message(tcp_sock, server_addr, client_addr);
     }
 }
